@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { authService } from "../services/authServices";
 
 function Login() {
     const [email, setEmail] = useState('');
@@ -8,26 +9,20 @@ function Login() {
     const { login } = useAuth();
     const navigate = useNavigate();
 
-    // Mock users for now (as you had them)
-    const users = [
-        { email: "admin@example.com", password: "password1", role: "admin" },
-        { email: "student@example.com", password: "password2", role: "student" }
-    ];
-
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
 
-        const user = users.find((u) => u.email === email && u.password === password);
+        const response = await authService.login(email, password);
 
-        if (user) {
-            login(user);
-            if (user.role === "admin") {
+        if (response.success) {
+            login(response.user);
+            if (response.user.role === "admin") {
                 navigate("/admin");
             } else {
                 navigate("/student");
             }
         } else {
-            alert("Invalid email or password");
+            alert(response.message || "Invalid email or password");
         }
     }
 

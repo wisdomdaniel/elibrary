@@ -1,17 +1,27 @@
 import React, { useState, useEffect } from "react";
+import { apiFetch } from "../services/api";
 
 function AdminDashboard() {
     const [materials, setMaterials] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Mocking data fetch
-        const mockMaterials = [
-            { id: 1, title: "React for Beginners", type: "PDF", downloads: 120 },
-            { id: 2, title: "Advanced JavaScript", type: "Video", downloads: 85 },
-            { id: 3, title: "CSS Grid Masterclass", type: "E-Book", downloads: 45 },
-        ];
-        setMaterials(mockMaterials);
+        const fetchMaterials = async () => {
+            setLoading(true);
+            try {
+                const data = await apiFetch("/materials");
+                setMaterials(data);
+            } catch (error) {
+                console.error("Failed to fetch materials:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchMaterials();
     }, []);
+
+    if (loading) return <div>Loading dashboard...</div>;
 
     return (
         <div>

@@ -42,6 +42,32 @@ function AppRoutes() {
                     </ProtectedRoute>
                 }
             />
+            <Route
+                path="/admin/manage"
+                element={
+                    <ProtectedRoute allowedRoles={["admin"]}>
+                        <div style={{ padding: '20px' }}><h1>Manage Materials</h1><p>Placeholder for material management.</p></div>
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/admin/upload"
+                element={
+                    <ProtectedRoute allowedRoles={["admin"]}>
+                        <div style={{ padding: '20px' }}><h1>Upload New Material</h1><p>Placeholder for material upload.</p></div>
+                    </ProtectedRoute>
+                }
+            />
+
+            {/* Additional Student Protected Routes */}
+            <Route
+                path="/student/profile"
+                element={
+                    <ProtectedRoute allowedRoles={["student"]}>
+                        <div style={{ padding: '20px' }}><h1>My Profile</h1><p>Placeholder for student profile.</p></div>
+                    </ProtectedRoute>
+                }
+            />
 
             {/* Fallback for undefined routes */}
             <Route path="*" element={<Navigate to="/" />} />

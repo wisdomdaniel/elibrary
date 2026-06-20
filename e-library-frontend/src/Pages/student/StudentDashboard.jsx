@@ -1,19 +1,28 @@
 import React, { useState, useEffect } from "react";
+import { apiFetch } from "../services/api";
 
 function StudentDashboard() {
     const [availableBooks, setAvailableBooks] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Mock data for student
-        const books = [
-            { id: 1, title: "Introduction to React", author: "Jane Doe", category: "Programming" },
-            { id: 2, title: "Modern CSS", author: "John Smith", category: "Design" },
-            { id: 3, title: "JavaScript: The Good Parts", author: "Douglas Crockford", category: "Programming" },
-            { id: 4, title: "Node.js Design Patterns", author: "Mario Casciaro", category: "Backend" },
-        ];
-        setAvailableBooks(books);
+        const fetchBooks = async () => {
+            setLoading(true);
+            try {
+                const data = await apiFetch("/books");
+                setAvailableBooks(data);
+            } catch (error) {
+                console.error("Failed to fetch books:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchBooks();
     }, []);
+
+    if (loading) return <div>Loading library...</div>;
 
     const filteredBooks = availableBooks.filter(book =>
         book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
