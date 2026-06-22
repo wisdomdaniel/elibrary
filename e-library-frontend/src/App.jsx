@@ -1,11 +1,21 @@
 import AppRoutes from "./Pages/routes/AppRoutes.jsx"
+import NavBar from "./components/NavBar.jsx"
+import SideBar from "./components/SideBar.jsx"
+import { useAuth } from "./Pages/context/AuthContext.jsx"
 
 function App() {
-  const savedUser = localStorage.getItem("user");
-  const user = savedUser ? JSON.parse(savedUser) : null;
+  const { user } = useAuth();
   
   return(
-    <AppRoutes/>
+    <div className="app-container">
+      <NavBar />
+      <div style={{ display: 'flex' }}>
+        {user && <SideBar />}
+        <main style={{ flex: 1, padding: '20px' }}>
+          <AppRoutes/>
+        </main>
+      </div>
+    </div>
   )
 }
 
