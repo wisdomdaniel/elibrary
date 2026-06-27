@@ -4,18 +4,20 @@
   --color-primary: #4F46E5;
   --color-primary-dark: #4338CA;
   --color-primary-light: #E0E7FF;
-  --color-sidebar: #1E1E2D;
-  --color-background: #F9FAFB;
+  --color-sidebar: #FFFFFF;
+  --color-background: #F8FAFC;
 }
 
 @layer base {
   :root {
-    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     line-height: 1.5;
     font-weight: 400;
     color-scheme: light;
-    color: #111827;
-    background-color: #F9FAFB;
+    color: #1e293b;
+    background-color: #F8FAFC;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
@@ -31,4 +33,13 @@
   &::-webkit-scrollbar {
     display: none;
   }
+}
+
+/* Custom scroll snap for carousel */
+.snap-x {
+  scroll-snap-type: x mandatory;
+}
+
+.snap-start {
+  scroll-snap-align: start;
 }
