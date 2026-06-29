@@ -116,9 +116,9 @@ export const authServices = {
     // Mock login logic
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        if (email === "student@uni.edu" && password === "password") {
+        if (email === "student@uni.com" && password === "password") {
           resolve({ id: 1, name: "John Doe", email, role: "student" });
-        } else if (email === "admin@uni.edu" && password === "password") {
+        } else if (email === "admin@uni.com" && password === "password") {
           resolve({ id: 2, name: "Admin User", email, role: "admin" });
         } else {
           reject(new Error("Invalid credentials"));
