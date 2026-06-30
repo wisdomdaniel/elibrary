@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useSearch } from '../../context/SearchContext';
 import { MOCK_MATERIALS } from '../../services/mockData';
@@ -9,13 +10,27 @@ import {
   Download,
   MoreVertical,
   TrendingUp,
-  Clock
+  Clock,
+  Edit2,
+  Trash2
 } from 'lucide-react';
 import UploadModal from '../../components/UploadModal';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
+  const { searchQuery } = useSearch();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+
+  const filteredMaterials = useMemo(() => {
+    if (!searchQuery.trim()) return MOCK_MATERIALS;
+    const query = searchQuery.toLowerCase();
+    return MOCK_MATERIALS.filter(book =>
+      book.title.toLowerCase().includes(query) ||
+      book.author.toLowerCase().includes(query) ||
+      book.code.toLowerCase().includes(query) ||
+      book.category.toLowerCase().includes(query)
+    );
+  }, [searchQuery]);
 
   const stats = [
     { label: 'Total Books', value: '1,284', icon: BookOpen, color: 'bg-blue-500' },
@@ -60,7 +75,7 @@ const AdminDashboard = () => {
         <div className="lg:col-span-2 bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
           <div className="p-8 border-b border-gray-50 flex items-center justify-between">
             <h2 className="text-xl font-bold text-gray-900">Recently Added Materials</h2>
-            <button className="text-primary text-sm font-bold">View All</button>
+            <Link to="/admin/manage" className="text-primary text-sm font-bold hover:underline">View All</Link>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
@@ -73,7 +88,7 @@ const AdminDashboard = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {MOCK_MATERIALS.map((book) => (
+                {filteredMaterials.map((book) => (
                   <tr key={book.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-8 py-4">
                       <div className="flex items-center gap-3">
@@ -98,9 +113,14 @@ const AdminDashboard = () => {
                       </div>
                     </td>
                     <td className="px-8 py-4 text-right">
-                      <button className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-all">
-                        <MoreVertical className="h-5 w-5" />
-                      </button>
+                      <div className="flex justify-end gap-2">
+                        <button className="p-2 text-gray-400 hover:text-primary rounded-lg hover:bg-blue-50 transition-all">
+                          <Edit2 className="h-4 w-4" />
+                        </button>
+                        <button className="p-2 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-all">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

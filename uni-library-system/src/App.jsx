@@ -4,6 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/MainLayout';
 import StudentDashboard from './pages/student/StudentDashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import ManageMaterials from './pages/admin/ManageMaterials';
 import { useAuth } from './context/AuthContext';
 
 function App() {
@@ -21,6 +22,15 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['student']}>
                 <StudentDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/manage"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <ManageMaterials />
               </ProtectedRoute>
             }
           />

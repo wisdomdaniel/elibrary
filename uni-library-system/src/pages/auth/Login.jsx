@@ -18,7 +18,7 @@ const Login = () => {
       login(user);
       navigate(user.role === 'admin' ? '/admin' : '/student');
     } catch (err) {
-      setError('Invalid email or password. Use student@uni.edu or admin@uni.edu');
+      setError('Invalid email or password. Use student@uni.com or admin@uni.com');
     }
   };
 
@@ -43,7 +43,7 @@ const Login = () => {
                 type="email"
                 required
                 className="relative block w-full rounded-t-md border-0 py-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 px-3"
-                placeholder="Email address (student@uni.edu)"
+                placeholder="Email address (student@uni.com)"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
