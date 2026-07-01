@@ -17,7 +17,8 @@ export const SearchProvider = ({ children }) => {
     const filtered = MOCK_MATERIALS.filter(item =>
       item.title.toLowerCase().includes(query.toLowerCase()) ||
       item.author.toLowerCase().includes(query.toLowerCase()) ||
-      item.category.toLowerCase().includes(query.toLowerCase())
+      item.category.toLowerCase().includes(query.toLowerCase()) ||
+      item.code.toLowerCase().includes(query.toLowerCase())
     );
     setResults(filtered);
   };

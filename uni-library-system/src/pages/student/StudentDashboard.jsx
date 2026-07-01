@@ -1,7 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useSearch } from '../../context/SearchContext';
 import BookCard from '../../components/BookCard';
+import BookDetailModal from '../../components/BookDetailModal';
 import {
   ChevronRight,
   BookCopy,
@@ -17,7 +18,7 @@ import {
   LayoutGrid,
   ChevronLeft,
   Bookmark,
-  Clock
+  Clock as ClockIcon
 } from 'lucide-react';
 import { MOCK_STATS, MOCK_DEPARTMENTS, MOCK_ANNOUNCEMENTS, MOCK_POPULAR } from '../../services/mockData';
 
@@ -25,6 +26,14 @@ const StudentDashboard = () => {
   const { user } = useAuth();
   const { searchQuery, results } = useSearch();
   const scrollRef = useRef(null);
+
+  const [selectedBook, setSelectedBook] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleBookClick = (book) => {
+    setSelectedBook(book);
+    setIsModalOpen(true);
+  };
 
   const scroll = (direction) => {
     if (scrollRef.current) {
@@ -68,8 +77,19 @@ const StudentDashboard = () => {
           <p className="text-gray-400 font-bold">{results.length} materials found</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {results.map((book) => <BookCard key={book.id} book={book} />)}
+          {results.map((book) => (
+            <BookCard
+              key={book.id}
+              book={book}
+              onClick={() => handleBookClick(book)}
+            />
+          ))}
         </div>
+        <BookDetailModal
+          book={selectedBook}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
       </div>
     );
   }
@@ -87,15 +107,15 @@ const StudentDashboard = () => {
         </section>
 
         {/* Stats Grid */}
-        <section className="grid grid-cols-4 gap-6">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {MOCK_STATS.map((stat, i) => (
-            <div key={i} className="bg-white p-6 rounded-[2rem] border border-gray-50 flex items-center gap-5 group hover:shadow-lg hover:shadow-gray-100 transition-all duration-300">
-              <div className={`h-14 w-14 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110 ${getColorClass(stat.color)}`}>
+            <div key={i} className="bg-white p-6 rounded-[2rem] border border-gray-50 flex items-center gap-4 group hover:shadow-lg hover:shadow-gray-100 transition-all duration-300">
+              <div className={`h-12 w-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110 ${getColorClass(stat.color)}`}>
                 {getIcon(stat.icon)}
               </div>
-              <div>
-                <p className="text-2xl font-black text-gray-900 leading-tight">{stat.value}</p>
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">{stat.label}</p>
+              <div className="min-w-0">
+                <p className="text-xl font-black text-gray-900 leading-tight truncate">{stat.value}</p>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider truncate">{stat.label}</p>
               </div>
             </div>
           ))}
@@ -123,7 +143,10 @@ const StudentDashboard = () => {
           >
             {results.map((book) => (
               <div key={book.id} className="snap-start">
-                <BookCard book={book} />
+                <BookCard
+                  book={book}
+                  onClick={() => handleBookClick(book)}
+                />
               </div>
             ))}
           </div>
@@ -187,7 +210,7 @@ const StudentDashboard = () => {
               { name: 'My Courses', icon: GraduationCap },
               { name: 'Bookmarks', icon: Bookmark },
               { name: 'Download History', icon: DownloadCloud },
-              { name: 'Reading History', icon: Clock },
+              { name: 'Reading History', icon: ClockIcon },
             ].map((item, i) => (
               <div key={i} className="flex items-center justify-between p-2 rounded-2xl hover:bg-gray-50 transition-colors cursor-pointer group">
                 <div className="flex items-center gap-4">
@@ -221,6 +244,12 @@ const StudentDashboard = () => {
           </div>
         </section>
       </div>
+
+      <BookDetailModal
+        book={selectedBook}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };

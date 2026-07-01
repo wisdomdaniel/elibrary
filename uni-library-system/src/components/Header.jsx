@@ -1,4 +1,4 @@
-import { Search, Bell, ChevronDown } from 'lucide-react';
+import { Search, Bell, ChevronDown, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useSearch } from '../context/SearchContext';
 
@@ -45,8 +45,5 @@ const Header = () => {
     </header>
   );
 };
-
-// Internal icon wrapper since I used User but forgot to import it
-import { User } from 'lucide-react';
 
 export default Header;
