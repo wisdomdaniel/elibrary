@@ -3,8 +3,11 @@ import Login from './pages/auth/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/MainLayout';
 import StudentDashboard from './pages/student/StudentDashboard';
+import Library from './pages/student/Library';
+import Bookmarks from './pages/student/Bookmarks';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageMaterials from './pages/admin/ManageMaterials';
+import UploadMaterial from './pages/admin/UploadMaterial';
 import { useAuth } from './context/AuthContext';
 
 function App() {
@@ -27,10 +30,37 @@ function App() {
           />
 
           <Route
+            path="/student/library"
+            element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <Library />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/student/bookmarks"
+            element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <Bookmarks />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/admin/manage"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <ManageMaterials />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/upload"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <UploadMaterial />
               </ProtectedRoute>
             }
           />
