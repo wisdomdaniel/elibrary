@@ -18,7 +18,8 @@ import {
   LayoutGrid,
   ChevronLeft,
   Bookmark,
-  Clock as ClockIcon
+  Clock as ClockIcon,
+  Trophy
 } from 'lucide-react';
 import { MOCK_STATS, MOCK_DEPARTMENTS, MOCK_ANNOUNCEMENTS, MOCK_POPULAR } from '../../services/mockData';
 
@@ -178,8 +179,38 @@ const StudentDashboard = () => {
 
       {/* Right Sidebar Info Panel */}
       <div className="w-80 space-y-8">
-        {/* Announcements */}
-        <section className="bg-white rounded-[2.5rem] p-8 border border-gray-50">
+        {/* Reading Challenge Card */}
+        <section className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[2.5rem] p-8 text-white shadow-xl shadow-indigo-100 relative overflow-hidden group cursor-pointer">
+          <div className="absolute -right-4 -top-4 h-32 w-32 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-colors"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-6">
+              <div className="h-12 w-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center">
+                <Trophy size={24} className="text-white" />
+              </div>
+              <span className="text-[11px] font-black uppercase tracking-widest bg-white/20 px-3 py-1.5 rounded-xl">Level 4</span>
+            </div>
+            <h4 className="text-lg font-black mb-1">Reading Challenge</h4>
+            <p className="text-sm text-indigo-100 font-bold mb-6">Data Structures in C++</p>
+
+            <div className="space-y-3">
+              <div className="flex justify-between text-xs font-black">
+                <span>65% Complete</span>
+                <span>12/18 Ch.</span>
+              </div>
+              <div className="h-2.5 w-full bg-white/20 rounded-full overflow-hidden">
+                <div className="h-full bg-white rounded-full transition-all duration-1000" style={{ width: '65%' }}></div>
+              </div>
+            </div>
+
+            <button className="mt-8 w-full bg-white text-primary py-3.5 rounded-2xl text-xs font-black flex items-center justify-center gap-2 hover:bg-indigo-50 transition-colors shadow-lg active:scale-95">
+              Continue Reading
+              <ArrowRight size={16} />
+            </button>
+          </div>
+        </section>
+
+        {/* Announcements Card */}
+        <section className="bg-white rounded-[2.5rem] p-8 border border-gray-50 shadow-sm">
           <div className="flex items-center justify-between mb-8">
             <h3 className="font-black text-gray-900">Announcements</h3>
             <button className="text-[11px] font-black text-primary">View all</button>
