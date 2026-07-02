@@ -44,20 +44,19 @@ const StudentDashboard = () => {
   };
 
   const getIcon = (iconName) => {
-    // Professional uniform icon style: primary color
-    const iconProps = { size: 24, className: "text-primary" };
+    const size = 24;
     switch(iconName) {
-      case 'book': return <BookCopy {...iconProps} />;
-      case 'building': return <Building2 {...iconProps} />;
-      case 'graduation': return <GraduationCap {...iconProps} />;
-      case 'download': return <DownloadCloud {...iconProps} />;
-      case 'monitor': return <Monitor {...iconProps} />;
-      case 'settings': return <Settings2 {...iconProps} />;
-      case 'pi': return <Pi {...iconProps} />;
-      case 'atom': return <Atom {...iconProps} />;
-      case 'briefcase': return <Briefcase {...iconProps} />;
-      case 'layout-grid': return <LayoutGrid {...iconProps} />;
-      default: return <BookCopy {...iconProps} />;
+      case 'book': return <BookCopy size={size} className="text-indigo-500" />;
+      case 'building': return <Building2 size={size} className="text-emerald-500" />;
+      case 'graduation': return <GraduationCap size={size} className="text-amber-500" />;
+      case 'download': return <DownloadCloud size={size} className="text-sky-500" />;
+      case 'monitor': return <Monitor size={size} className="text-rose-500" />;
+      case 'settings': return <Settings2 size={size} className="text-slate-500" />;
+      case 'pi': return <Pi size={size} className="text-violet-500" />;
+      case 'atom': return <Atom size={size} className="text-cyan-500" />;
+      case 'briefcase': return <Briefcase size={size} className="text-orange-500" />;
+      case 'layout-grid': return <LayoutGrid size={size} className="text-fuchsia-500" />;
+      default: return <BookCopy size={size} className="text-primary" />;
     }
   };
 
@@ -100,9 +99,16 @@ const StudentDashboard = () => {
 
         {/* Stats Grid */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {MOCK_STATS.map((stat, i) => (
-            <div key={i} className="bg-white p-6 rounded-2xl border border-slate-50 flex items-center gap-4 group hover:shadow-lg hover:shadow-slate-100 transition-all duration-300">
-              <div className="h-12 w-12 rounded-xl bg-slate-50 flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110">
+          {MOCK_STATS.map((stat, i) => {
+            const bgColors = {
+              book: 'bg-indigo-50 dark:bg-indigo-900/20',
+              building: 'bg-emerald-50 dark:bg-emerald-900/20',
+              graduation: 'bg-amber-50 dark:bg-amber-900/20',
+              download: 'bg-sky-50 dark:bg-sky-900/20'
+            };
+            return (
+            <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center gap-4 group hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-none transition-all duration-300">
+              <div className={`h-14 w-14 rounded-2xl ${bgColors[stat.icon] || 'bg-slate-50 dark:bg-slate-800'} flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110 shadow-sm`}>
                 {getIcon(stat.icon)}
               </div>
               <div className="min-w-0">
@@ -110,7 +116,7 @@ const StudentDashboard = () => {
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">{stat.label}</p>
               </div>
             </div>
-          ))}
+          );})}
         </section>
 
         {/* Recent Materials Carousel */}
@@ -147,13 +153,22 @@ const StudentDashboard = () => {
         {/* Browse by Department */}
         <section>
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-xl font-black text-slate-900">Browse by Department</h2>
+            <h2 className="text-xl font-black text-slate-900 dark:text-white">Browse by Department</h2>
             <button className="text-primary font-black text-xs hover:underline">View all</button>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {MOCK_DEPARTMENTS.map((dept, i) => (
-              <div key={i} className="bg-white p-6 rounded-2xl border border-slate-50 flex flex-col items-center text-center gap-4 hover:shadow-lg hover:shadow-slate-100 transition-all duration-300 group cursor-pointer">
-                <div className="h-14 w-14 rounded-xl bg-slate-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+            {MOCK_DEPARTMENTS.map((dept, i) => {
+              const bgColors = {
+                monitor: 'bg-rose-50 dark:bg-rose-900/20',
+                settings: 'bg-slate-50 dark:bg-slate-800',
+                pi: 'bg-violet-50 dark:bg-violet-900/20',
+                atom: 'bg-cyan-50 dark:bg-cyan-900/20',
+                briefcase: 'bg-orange-50 dark:bg-orange-900/20',
+                'layout-grid': 'bg-fuchsia-50 dark:bg-fuchsia-900/20'
+              };
+              return (
+              <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col items-center text-center gap-4 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-none transition-all duration-300 group cursor-pointer">
+                <div className={`h-16 w-16 rounded-2xl ${bgColors[dept.icon] || 'bg-slate-50 dark:bg-slate-800'} flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm`}>
                   {getIcon(dept.icon)}
                 </div>
                 <div>
@@ -163,7 +178,7 @@ const StudentDashboard = () => {
                   </p>
                 </div>
               </div>
-            ))}
+            );})}
           </div>
         </section>
       </div>
