@@ -44,15 +44,15 @@ const SideBar = () => {
   const navItems = user?.role === 'admin' ? adminNavItems : studentNavItems;
 
   return (
-    <div className="flex h-screen w-72 flex-col bg-white border-r border-gray-100/50 sticky top-0 flex-shrink-0">
+    <div className="flex h-screen w-72 flex-col bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800 sticky top-0 flex-shrink-0 transition-colors">
       <div className="flex h-24 items-center px-10">
         <div className="flex items-center gap-3.5">
-          <div className="h-11 w-11 rounded-xl bg-indigo-50 flex items-center justify-center border border-indigo-100 shadow-sm shadow-indigo-100/50">
+          <div className="h-11 w-11 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-100 dark:border-slate-700 shadow-sm">
             <BookOpen className="text-primary h-6 w-6" />
           </div>
           <div>
-            <span className="text-xl font-black text-slate-900 block leading-none mb-1">UniLibrary</span>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">E-Library System</span>
+            <span className="text-xl font-black text-slate-900 dark:text-white block leading-none mb-1">UniLibrary</span>
+            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">E-Library System</span>
           </div>
         </div>
       </div>
@@ -64,23 +64,23 @@ const SideBar = () => {
             <Link
               key={item.name}
               to={item.path}
-              className={`flex items-center gap-3.5 rounded-2xl px-4 py-3.5 text-sm font-bold transition-all duration-300 group ${
+              className={`flex items-center gap-3.5 rounded-lg px-4 py-3 text-sm font-bold transition-all duration-300 group ${
                 isActive
-                  ? 'bg-primary text-white shadow-xl shadow-primary/25'
-                  : 'text-slate-400 hover:bg-slate-50 hover:text-primary'
+                  ? 'bg-primary text-white shadow-md shadow-primary/20'
+                  : 'text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-primary'
               }`}
             >
-              <item.icon className={`h-5 w-5 transition-transform duration-300 ${isActive ? 'text-white' : 'text-slate-300 group-hover:text-primary group-hover:scale-110'}`} />
+              <item.icon className={`h-5 w-5 transition-transform duration-300 ${isActive ? 'text-white' : 'text-slate-300 dark:text-slate-600 group-hover:text-primary group-hover:scale-110'}`} />
               {item.name}
             </Link>
           );
         })}
       </nav>
 
-      <div className="px-6 py-6 border-t border-slate-50">
+      <div className="px-6 py-6 border-t border-slate-50 dark:border-slate-800">
         <button
           onClick={logout}
-          className="flex w-full items-center gap-3.5 rounded-2xl px-4 py-3.5 text-sm font-bold text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all duration-300 group"
+          className="flex w-full items-center gap-3.5 rounded-lg px-4 py-3 text-sm font-bold text-slate-400 hover:bg-red-50 dark:hover:bg-red-900/10 hover:text-red-500 transition-all duration-300 group"
         >
           <LogOut className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
           Logout

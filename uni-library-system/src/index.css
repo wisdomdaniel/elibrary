@@ -1,11 +1,15 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #4F46E5;
-  --color-primary-dark: #4338CA;
-  --color-primary-light: #E0E7FF;
+  --color-primary: #334155; /* Slate 700 - more professional */
+  --color-primary-dark: #1e293b; /* Slate 800 */
+  --color-primary-light: #f1f5f9; /* Slate 100 */
+  --color-accent: #6366f1; /* Indigo 500 for subtle highlights if needed */
   --color-sidebar: #FFFFFF;
   --color-background: #F8FAFC;
+
+  --radius-button: 0.5rem; /* rounded-lg */
+  --radius-card: 1rem; /* rounded-2xl */
 }
 
 @layer base {
@@ -24,6 +28,18 @@
     margin: 0;
     min-width: 320px;
     min-height: 100vh;
+  }
+
+  /* Dark mode support */
+  .dark {
+    color-scheme: dark;
+    --color-background: #0f172a;
+    --color-sidebar: #1e293b;
+    color: #f1f5f9;
+  }
+
+  .dark body {
+    background-color: var(--color-background);
   }
 }
 
