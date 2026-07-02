@@ -8,13 +8,14 @@ import Bookmarks from './pages/student/Bookmarks';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageMaterials from './pages/admin/ManageMaterials';
 import UploadMaterial from './pages/admin/UploadMaterial';
+import Settings from './pages/common/Settings';
 import { useAuth } from './context/AuthContext';
 
 function App() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
       <Routes>
         <Route path="/login" element={<Login />} />
 
@@ -48,6 +49,15 @@ function App() {
           />
 
           <Route
+            path="/student/settings"
+            element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/admin/manage"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
@@ -61,6 +71,15 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <UploadMaterial />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/settings"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <Settings />
               </ProtectedRoute>
             }
           />
