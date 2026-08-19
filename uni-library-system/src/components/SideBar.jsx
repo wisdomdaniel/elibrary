@@ -4,11 +4,8 @@ import {
   Library,
   Bookmark,
   History,
-  GraduationCap,
   LayoutGrid,
   UploadCloud,
-  Megaphone,
-  User,
   Settings,
   LogOut,
   BookOpen,
@@ -25,11 +22,8 @@ const SideBar = () => {
     { name: 'Library', icon: Library, path: '/student/library' },
     { name: 'Bookmarks', icon: Bookmark, path: '/student/bookmarks' },
     { name: 'History', icon: History, path: '/student/history' },
-    { name: 'My Courses', icon: GraduationCap, path: '/student/courses' },
     { name: 'Categories', icon: LayoutGrid, path: '/student/categories' },
     { name: 'Recent Uploads', icon: UploadCloud, path: '/student/recent' },
-    { name: 'Announcements', icon: Megaphone, path: '/student/announcements' },
-    { name: 'Profile', icon: User, path: '/student/profile' },
     { name: 'Settings', icon: Settings, path: '/student/settings' },
   ];
 
@@ -37,7 +31,6 @@ const SideBar = () => {
     { name: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
     { name: 'Manage Materials', icon: BookOpen, path: '/admin/manage' },
     { name: 'Upload', icon: UploadCloud, path: '/admin/upload' },
-    { name: 'Announcements', icon: Megaphone, path: '/admin/announcements' },
     { name: 'Settings', icon: Settings, path: '/admin/settings' },
   ];
 
