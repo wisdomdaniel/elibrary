@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { xanoService } from '../../services/xanoService';
+import { useSearch } from '../../context/SearchContext';
 import {
   UploadCloud,
   FileText,
@@ -17,6 +18,7 @@ import {
 } from 'lucide-react';
 
 const UploadMaterial = () => {
+  const { refreshMaterials } = useSearch();
   const [step, setStep] = useState(1);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -58,6 +60,7 @@ const UploadMaterial = () => {
         description: formData.description,
         fileName: formData.file ? formData.file.name : 'document.pdf'
       });
+      if (refreshMaterials) refreshMaterials();
       setIsUploading(false);
       setUploadSuccess(true);
     } catch (err) {

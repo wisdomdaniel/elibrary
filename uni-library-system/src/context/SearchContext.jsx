@@ -13,6 +13,22 @@ export const SearchProvider = ({ children }) => {
     return [...uploaded, ...MOCK_MATERIALS];
   };
 
+  const refreshMaterials = () => {
+    const allMaterials = getCombinedMaterials();
+    if (!searchQuery.trim()) {
+      setResults(allMaterials);
+      return;
+    }
+    const filtered = allMaterials.filter(item =>
+      (item.title && item.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.author && item.author.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.category && item.category.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.code && item.code.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.department && item.department.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+    setResults(filtered);
+  };
+
   const setSearchQuery = (query) => {
     setSearchQueryState(query);
     const allMaterials = getCombinedMaterials();
@@ -31,13 +47,16 @@ export const SearchProvider = ({ children }) => {
     setResults(filtered);
   };
 
-  // Initial load
+  // Initial load & window storage listener
   React.useEffect(() => {
-    setResults(getCombinedMaterials());
-  }, []);
+    refreshMaterials();
+    const handleStorageChange = () => refreshMaterials();
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [searchQuery]);
 
   return (
-    <SearchContext.Provider value={{ searchQuery, setSearchQuery, handleSearch: setSearchQuery, results }}>
+    <SearchContext.Provider value={{ searchQuery, setSearchQuery, handleSearch: setSearchQuery, results, refreshMaterials }}>
       {children}
     </SearchContext.Provider>
   );
