@@ -1,8 +1,20 @@
-import React from 'react';
-import { X, Star, Clock, BookOpen, Share2, Bookmark, Download } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Star, Clock, BookOpen, Share2, Bookmark, Download, Eye, FileText, ArrowLeft } from 'lucide-react';
 
 const BookDetailModal = ({ book, isOpen, onClose }) => {
+  const [isReadingMode, setIsReadingMode] = useState(false);
+
   if (!isOpen || !book) return null;
+
+  const handleDownload = () => {
+    const element = document.createElement("a");
+    const file = new Blob([`Content of ${book.title}\nCourse: ${book.code}\nAuthor: ${book.author}\n\nDescription:\n${book.description}`], {type: 'text/plain'});
+    element.href = URL.createObjectURL(file);
+    element.download = `${book.code || 'material'}_${book.title.replace(/\s+/g, '_')}.txt`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -47,44 +59,89 @@ const BookDetailModal = ({ book, isOpen, onClose }) => {
 
         {/* Right: Content & Actions */}
         <div className="w-full md:w-3/5 p-10 md:p-14 flex flex-col">
-          <div className="flex-1">
-            <span className="inline-block px-3 py-1 rounded-full bg-indigo-50 text-[10px] font-black text-primary mb-4 uppercase tracking-tighter">
-              {book.category}
-            </span>
-            <h2 className="text-3xl font-black text-slate-900 mb-2 leading-tight">{book.title}</h2>
-            <p className="text-lg font-bold text-slate-400 mb-8">by {book.author}</p>
+          {isReadingMode ? (
+            <div className="flex-1 flex flex-col">
+              <button
+                onClick={() => setIsReadingMode(false)}
+                className="inline-flex items-center gap-2 text-xs font-black text-slate-400 hover:text-slate-900 mb-6 transition-colors"
+              >
+                <ArrowLeft size={16} /> Back to details
+              </button>
 
-            <div className="flex gap-8 mb-8">
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-600">
-                <Clock size={18} className="text-slate-300" />
-                {book.time}
-              </div>
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-600">
-                <BookOpen size={18} className="text-slate-300" />
-                {book.code}
+              <div className="flex-1 bg-slate-50 p-6 rounded-2xl border border-slate-100 overflow-y-auto max-h-[350px] space-y-4">
+                <div className="flex items-center justify-between pb-4 border-b border-slate-200">
+                  <div className="flex items-center gap-2 font-black text-slate-900 text-sm">
+                    <FileText size={18} className="text-primary" />
+                    {book.title} ({book.code})
+                  </div>
+                  <button
+                    onClick={handleDownload}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-all"
+                  >
+                    <Download size={14} /> Download
+                  </button>
+                </div>
+                <div className="text-slate-700 text-sm font-medium leading-relaxed space-y-3">
+                  <p><strong>Chapter 1: Introduction & Overview</strong></p>
+                  <p>
+                    Welcome to {book.title}. This section introduces the fundamentals of {book.code}. Students are advised to follow each module closely and complete the self-assessment exercises provided at the end of each unit.
+                  </p>
+                  <p>
+                    {book.description || "This material contains lecture notes, key definitions, diagrammatic representations, and revision questions designed for effective study."}
+                  </p>
+                  <p className="text-xs text-slate-400 font-bold pt-4">
+                    [End of Document Preview]
+                  </p>
+                </div>
               </div>
             </div>
+          ) : (
+            <>
+              <div className="flex-1">
+                <span className="inline-block px-3 py-1 rounded-full bg-indigo-50 text-[10px] font-black text-primary mb-4 uppercase tracking-tighter">
+                  {book.category}
+                </span>
+                <h2 className="text-3xl font-black text-slate-900 mb-2 leading-tight">{book.title}</h2>
+                <p className="text-lg font-bold text-slate-400 mb-8">by {book.author}</p>
 
-            <div className="mb-10">
-              <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-4">About this material</h4>
-              <p className="text-slate-500 font-medium leading-relaxed">
-                {book.description || "This comprehensive learning material covers essential concepts and practical applications. It is designed to help students master the core principles of the subject through structured lessons and real-world examples."}
-              </p>
-            </div>
-          </div>
+                <div className="flex gap-8 mb-8">
+                  <div className="flex items-center gap-2 text-sm font-bold text-slate-600">
+                    <Clock size={18} className="text-slate-300" />
+                    {book.time}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm font-bold text-slate-600">
+                    <BookOpen size={18} className="text-slate-300" />
+                    {book.code}
+                  </div>
+                </div>
 
-          <div className="flex items-center gap-4">
-            <button className="flex-1 bg-primary text-white py-4 px-8 rounded-2xl font-black shadow-xl shadow-primary/25 hover:bg-primary-dark transition-all flex items-center justify-center gap-3 active:scale-95">
-              <BookOpen size={20} />
-              Start Reading
-            </button>
-            <button className="h-14 w-14 rounded-2xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-slate-50 transition-all active:scale-95">
-              <Bookmark size={20} />
-            </button>
-            <button className="h-14 w-14 rounded-2xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-slate-50 transition-all active:scale-95">
-              <Share2 size={20} />
-            </button>
-          </div>
+                <div className="mb-10">
+                  <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-4">About this material</h4>
+                  <p className="text-slate-500 font-medium leading-relaxed">
+                    {book.description || "This comprehensive learning material covers essential concepts and practical applications. It is designed to help students master the core principles of the subject through structured lessons and real-world examples."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setIsReadingMode(true)}
+                  className="flex-1 bg-primary text-white py-4 px-6 rounded-2xl font-black shadow-xl shadow-primary/25 hover:bg-primary-dark transition-all flex items-center justify-center gap-2 active:scale-95 text-sm"
+                >
+                  <Eye size={18} />
+                  View & Read
+                </button>
+                <button
+                  onClick={handleDownload}
+                  title="Download material"
+                  className="flex-1 bg-slate-100 text-slate-900 py-4 px-6 rounded-2xl font-black hover:bg-slate-200 transition-all flex items-center justify-center gap-2 active:scale-95 text-sm"
+                >
+                  <Download size={18} />
+                  Download
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

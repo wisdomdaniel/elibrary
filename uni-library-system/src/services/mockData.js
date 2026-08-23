@@ -127,9 +127,14 @@ export const authServices = {
     });
   },
   register: async (userData) => {
+    // Save locally or to Xano BaaS
+    const users = JSON.parse(localStorage.getItem('uni_registered_users') || '[]');
+    const newUser = { ...userData, id: Date.now(), role: "student" };
+    users.push(newUser);
+    localStorage.setItem('uni_registered_users', JSON.stringify(users));
     return new Promise((resolve) => {
       setTimeout(() => {
-        resolve({ ...userData, id: Date.now(), role: "student" });
+        resolve(newUser);
       }, 500);
     });
   }
