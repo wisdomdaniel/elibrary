@@ -1,10 +1,22 @@
-import { Star, Clock } from 'lucide-react';
+import { Star, Clock, Download } from 'lucide-react';
 
 const BookCard = ({ book, onClick }) => {
+  const handleDownload = (e) => {
+    e.stopPropagation();
+    // Simulate material file download
+    const element = document.createElement("a");
+    const file = new Blob([`Content of ${book.title}\nCourse: ${book.code}\nAuthor: ${book.author}`], {type: 'text/plain'});
+    element.href = URL.createObjectURL(file);
+    element.download = `${book.code || 'material'}_${book.title.replace(/\s+/g, '_')}.txt`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
+
   return (
     <div
       onClick={onClick}
-      className="flex-none w-56 bg-white rounded-2xl overflow-hidden border border-slate-100 hover:shadow-lg hover:shadow-slate-200/50 transition-all duration-300 group cursor-pointer flex flex-col h-full"
+      className="relative flex-none w-56 bg-white rounded-2xl overflow-hidden border border-slate-100 hover:shadow-lg hover:shadow-slate-200/50 transition-all duration-300 group cursor-pointer flex flex-col h-full"
     >
       <div className="relative h-64 overflow-hidden p-3">
         <div className="w-full h-full rounded-xl overflow-hidden relative border border-slate-50">
@@ -29,9 +41,18 @@ const BookCard = ({ book, onClick }) => {
         </h3>
         <p className="text-[11px] font-bold text-slate-400 mb-3">{book.code}</p>
 
-        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 border-t border-slate-50 pt-3 mt-auto">
-          <Clock className="h-3 w-3 text-slate-400" />
-          {book.time}
+        <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 border-t border-slate-50 pt-3 mt-auto">
+          <div className="flex items-center gap-1.5">
+            <Clock className="h-3 w-3 text-slate-400" />
+            {book.time}
+          </div>
+          <button
+            onClick={handleDownload}
+            title="Download material"
+            className="p-1.5 rounded-lg bg-slate-50 hover:bg-primary hover:text-white text-slate-600 transition-all"
+          >
+            <Download size={14} />
+          </button>
         </div>
       </div>
     </div>

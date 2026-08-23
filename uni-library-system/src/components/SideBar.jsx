@@ -3,8 +3,6 @@ import {
   Home,
   Library,
   Bookmark,
-  History,
-  LayoutGrid,
   UploadCloud,
   Settings,
   LogOut,
@@ -21,9 +19,6 @@ const SideBar = () => {
     { name: 'Dashboard', icon: Home, path: '/student' },
     { name: 'Library', icon: Library, path: '/student/library' },
     { name: 'Bookmarks', icon: Bookmark, path: '/student/bookmarks' },
-    { name: 'History', icon: History, path: '/student/history' },
-    { name: 'Categories', icon: LayoutGrid, path: '/student/categories' },
-    { name: 'Recent Uploads', icon: UploadCloud, path: '/student/recent' },
     { name: 'Settings', icon: Settings, path: '/student/settings' },
   ];
 

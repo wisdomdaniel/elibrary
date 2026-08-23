@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { xanoService } from '../../services/xanoService';
 import {
   UploadCloud,
   FileText,
@@ -44,14 +45,25 @@ const UploadMaterial = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsUploading(true);
-    // Mock upload delay
-    setTimeout(() => {
+    try {
+      await xanoService.uploadMaterial({
+        title: formData.title,
+        author: formData.author,
+        category: formData.category,
+        code: formData.code,
+        department: formData.department,
+        description: formData.description,
+        fileName: formData.file ? formData.file.name : 'document.pdf'
+      });
       setIsUploading(false);
       setUploadSuccess(true);
-    }, 2000);
+    } catch (err) {
+      setIsUploading(false);
+      alert('Upload error: ' + err.message);
+    }
   };
 
   const nextStep = () => setStep(prev => Math.min(prev + 1, 3));
