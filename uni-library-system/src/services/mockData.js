@@ -111,45 +111,87 @@ export const MOCK_MATERIALS = [
   }
 ];
 
+import { xanoService } from './xanoService';
+
 export const authServices = {
   login: async (email, password) => {
+    const cleanEmail = (email || '').trim();
+    const cleanPassword = (password || '').trim();
+
     return new Promise((resolve, reject) => {
-      setTimeout(() => {
+      setTimeout(async () => {
         // Check static accounts
-        if (email === "student@uni.com" && password === "password") {
-          resolve({ id: 1, name: "John Doe", email, role: "student", faculty: "Faculty of Computing", department: "Computer Science" });
+        if (cleanEmail === "student@uni.com" && cleanPassword === "password") {
+          resolve({ id: 1, name: "John Doe", email: cleanEmail, role: "student", faculty: "Faculty of Computing", department: "Computer Science" });
           return;
         }
-        if (email === "admin@uni.com" && password === "password") {
-          resolve({ id: 2, name: "Admin User", email, role: "admin" });
+        if (cleanEmail === "admin@uni.com" && cleanPassword === "password") {
+          resolve({ id: 2, name: "Admin User", email: cleanEmail, role: "admin" });
           return;
         }
 
         // Check registered users in storage
         const registered = JSON.parse(localStorage.getItem('uni_registered_users') || '[]');
+
+        // Strict case-sensitive match for password / Mat No, trimmed matching for email
         const user = registered.find(u =>
-          (u.email && u.email.toLowerCase() === email.toLowerCase()) &&
-          (u.password === password || u.matNo === password)
+          (u.email && u.email.trim() === cleanEmail) &&
+          (u.password === cleanPassword || u.matNo === cleanPassword)
         );
 
         if (user) {
           resolve(user);
         } else {
-          reject(new Error("Invalid credentials. Enter registered Email and password (Mat No)."));
+          // Fallback attempt to Xano BaaS if configured
+          try {
+            const xanoUser = await xanoService.loginStudent(cleanEmail, cleanPassword);
+            if (xanoUser) {
+              resolve(xanoUser);
+              return;
+            }
+          } catch (e) {
+            // Ignore Xano error and proceed to standard reject
+          }
+          reject(new Error("Invalid credentials. Enter registered Email and password (Mat No) with exact case matching."));
         }
-      }, 500);
+      }, 400);
     });
   },
   register: async (userData) => {
-    // Save locally or to Xano BaaS
-    const users = JSON.parse(localStorage.getItem('uni_registered_users') || '[]');
-    const newUser = { ...userData, id: Date.now(), role: "student" };
-    users.push(newUser);
-    localStorage.setItem('uni_registered_users', JSON.stringify(users));
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(newUser);
-      }, 500);
-    });
+    // Unified Registration: Write to persistent LocalStorage AND Xano BaaS (if available)
+    const existingUsers = JSON.parse(localStorage.getItem('uni_registered_users') || '[]');
+
+    const cleanUserData = {
+      ...userData,
+      email: (userData.email || '').trim(),
+      matNo: (userData.matNo || '').trim(),
+      password: (userData.password || userData.matNo || '').trim()
+    };
+
+    // Check if user already exists
+    const duplicate = existingUsers.find(u => u.email === cleanUserData.email || u.matNo === cleanUserData.matNo);
+    if (duplicate) {
+      // Update existing record rather than duplicating
+      const index = existingUsers.findIndex(u => u.email === cleanUserData.email || u.matNo === cleanUserData.matNo);
+      existingUsers[index] = { ...existingUsers[index], ...cleanUserData };
+    } else {
+      const newUser = { ...cleanUserData, id: Date.now(), role: "student" };
+      existingUsers.push(newUser);
+    }
+
+    localStorage.setItem('uni_registered_users', JSON.stringify(existingUsers));
+
+    // Dispatch storage event to keep tabs & views synchronized
+    window.dispatchEvent(new Event('storage'));
+
+    // Try background sync with Xano BaaS
+    try {
+      await xanoService.registerStudent(cleanUserData);
+    } catch (err) {
+      console.log('Xano BaaS Sync Note:', err.message);
+    }
+
+    const registeredUser = existingUsers.find(u => u.email === cleanUserData.email) || { ...cleanUserData, id: Date.now(), role: 'student' };
+    return registeredUser;
   }
 };

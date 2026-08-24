@@ -61,12 +61,19 @@ export const xanoService = {
     return new Promise((resolve) => {
       setTimeout(() => {
         const users = JSON.parse(localStorage.getItem('uni_registered_users') || '[]');
-        const newUser = {
-          id: Date.now(),
-          ...studentData,
-          role: 'student'
-        };
-        users.push(newUser);
+        const existingIndex = users.findIndex(u => u.email === studentData.email || u.matNo === studentData.matNo);
+        let newUser;
+        if (existingIndex >= 0) {
+          newUser = { ...users[existingIndex], ...studentData };
+          users[existingIndex] = newUser;
+        } else {
+          newUser = {
+            id: Date.now(),
+            ...studentData,
+            role: 'student'
+          };
+          users.push(newUser);
+        }
         localStorage.setItem('uni_registered_users', JSON.stringify(users));
 
         // Create log entry
@@ -81,8 +88,22 @@ export const xanoService = {
 
         window.dispatchEvent(new Event('storage'));
         resolve(newUser);
-      }, 500);
+      }, 300);
     });
+  },
+
+  // Student Login from BaaS
+  loginStudent: async (email, password) => {
+    if (XANO_BASE_URL) {
+      const response = await fetch(`${XANO_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!response.ok) throw new Error('Invalid credentials on Xano BaaS');
+      return await response.json();
+    }
+    return null;
   },
 
   // Update Profile

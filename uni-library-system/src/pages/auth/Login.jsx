@@ -14,11 +14,11 @@ const Login = () => {
     e.preventDefault();
     setError('');
     try {
-      const user = await authServices.login(email, password);
+      const user = await authServices.login(email.trim(), password.trim());
       login(user);
       navigate(user.role === 'admin' ? '/admin' : '/student');
     } catch (err) {
-      setError('Invalid email or password. Use student@uni.com or admin@uni.com');
+      setError(err.message || 'Invalid email or password. Please check your case-sensitive credentials.');
     }
   };
 
