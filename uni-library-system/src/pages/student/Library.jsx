@@ -12,12 +12,12 @@ import {
   Star
 } from 'lucide-react';
 import { useSearch } from '../../context/SearchContext';
-import { MOCK_MATERIALS, MOCK_DEPARTMENTS } from '../../services/mockData';
+import { MOCK_DEPARTMENTS } from '../../services/mockData';
 import BookCard from '../../components/BookCard';
 import BookDetailModal from '../../components/BookDetailModal';
 
 const Library = () => {
-  const { searchQuery } = useSearch();
+  const { searchQuery, results } = useSearch();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedDept, setSelectedDept] = useState('All');
   const [sortBy, setSortBy] = useState('newest');
@@ -29,7 +29,7 @@ const Library = () => {
   const departments = ['All', ...MOCK_DEPARTMENTS.filter(d => d.name !== 'More').map(d => d.name)];
 
   const filteredMaterials = useMemo(() => {
-    let result = MOCK_MATERIALS;
+    let result = results;
 
     // Search Query
     if (searchQuery.trim()) {
@@ -46,13 +46,9 @@ const Library = () => {
       result = result.filter(m => m.category === selectedCategory);
     }
 
-    // Department Filter (Mocked mapping for now since mock data doesn't have dept)
-    // In a real app, materials would have a departmentId or name
+    // Department Filter
     if (selectedDept !== 'All') {
-        // Just for demo, filter everything if CS is not selected (since most are CS in mock)
-        if (selectedDept !== 'Computer Science') {
-            result = [];
-        }
+      result = result.filter(m => !m.department || m.department === selectedDept || selectedDept === 'Computer Science');
     }
 
     // Sorting
