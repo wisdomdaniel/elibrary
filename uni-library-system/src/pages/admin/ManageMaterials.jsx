@@ -13,7 +13,7 @@ import { useSearch } from '../../context/SearchContext';
 import UploadModal from '../../components/UploadModal';
 
 const ManageMaterials = () => {
-  const { searchQuery, results } = useSearch();
+  const { searchQuery, results, refreshMaterials } = useSearch();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
 
@@ -53,7 +53,7 @@ const ManageMaterials = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-gray-900">Manage Materials</h1>
-          <p className="text-gray-500 font-bold">Total {materials.length} library assets available.</p>
+          <p className="text-gray-500 font-bold">Total {results.length} library assets available.</p>
         </div>
         <button
           onClick={() => setIsUploadOpen(true)}
