@@ -1,14 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useSearch } from '../../context/SearchContext';
-import { MOCK_MATERIALS } from '../../services/mockData';
+import { xanoService } from '../../services/xanoService';
 import {
   Plus,
-  Users,
   BookOpen,
   Download,
-  MoreVertical,
   TrendingUp,
   Clock,
   Edit2,
@@ -18,25 +16,33 @@ import UploadModal from '../../components/UploadModal';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
-  const { searchQuery } = useSearch();
+  const { searchQuery, results } = useSearch();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [systemLogs, setSystemLogs] = useState([]);
+
+  useEffect(() => {
+    const fetchLogs = async () => {
+      const logs = await xanoService.getSystemLogs();
+      setSystemLogs(logs);
+    };
+    fetchLogs();
+  }, [results]);
 
   const filteredMaterials = useMemo(() => {
-    if (!searchQuery.trim()) return MOCK_MATERIALS;
+    if (!searchQuery.trim()) return results;
     const query = searchQuery.toLowerCase();
-    return MOCK_MATERIALS.filter(book =>
-      book.title.toLowerCase().includes(query) ||
-      book.author.toLowerCase().includes(query) ||
-      book.code.toLowerCase().includes(query) ||
-      book.category.toLowerCase().includes(query)
+    return results.filter(book =>
+      (book.title && book.title.toLowerCase().includes(query)) ||
+      (book.author && book.author.toLowerCase().includes(query)) ||
+      (book.code && book.code.toLowerCase().includes(query)) ||
+      (book.category && book.category.toLowerCase().includes(query))
     );
-  }, [searchQuery]);
+  }, [searchQuery, results]);
 
   const stats = [
-    { label: 'Total Books', value: '1,284', icon: BookOpen, color: 'bg-blue-500' },
-    { label: 'Active Users', value: '452', icon: Users, color: 'bg-green-500' },
+    { label: 'Total Books', value: results.length.toString(), icon: BookOpen, color: 'bg-blue-500' },
     { label: 'Downloads', value: '12.5k', icon: Download, color: 'bg-purple-500' },
-    { label: 'New This Week', value: '+48', icon: TrendingUp, color: 'bg-orange-500' },
+    { label: 'Recently Added', value: `+${results.length}`, icon: TrendingUp, color: 'bg-orange-500' },
   ];
 
   return (
@@ -56,7 +62,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {stats.map((stat) => (
           <div key={stat.label} className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex items-center gap-4">
             <div className={`h-14 w-14 ${stat.color} rounded-2xl flex items-center justify-center text-white shadow-lg shadow-gray-200`}>
@@ -129,23 +135,23 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* System Logs / Quick Actions */}
+        {/* System Logs / Realtime Activity */}
         <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8">
           <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             <Clock className="h-5 w-5 text-gray-400" />
             System Activity
           </h2>
           <div className="space-y-6">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="flex gap-4 relative">
-                {i !== 4 && <div className="absolute left-4 top-10 bottom-0 w-0.5 bg-gray-50"></div>}
+            {systemLogs.map((log, idx) => (
+              <div key={log.id || idx} className="flex gap-4 relative">
+                {idx !== systemLogs.length - 1 && <div className="absolute left-4 top-10 bottom-0 w-0.5 bg-gray-50"></div>}
                 <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 z-10">
                   <div className="h-2 w-2 rounded-full bg-primary"></div>
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-gray-900">Material Uploaded</p>
-                  <p className="text-xs text-gray-500">Admin User uploaded "Advanced CSS"</p>
-                  <p className="text-[10px] text-gray-400 mt-1 uppercase font-bold">2 hours ago</p>
+                  <p className="text-sm font-bold text-gray-900">{log.title}</p>
+                  <p className="text-xs text-gray-500">{log.desc}</p>
+                  <p className="text-[10px] text-gray-400 mt-1 uppercase font-bold">{log.time}</p>
                 </div>
               </div>
             ))}

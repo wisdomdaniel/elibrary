@@ -1,24 +1,25 @@
 import React, { useState } from 'react';
 import { xanoService } from '../../services/xanoService';
 import { useSearch } from '../../context/SearchContext';
+import { UNIBEN_FACULTIES } from '../../services/facultyData';
 import {
   UploadCloud,
   FileText,
   CheckCircle2,
   AlertCircle,
-  X,
-  Plus,
   BookOpen,
   Hash,
   User,
   Layout,
   Info,
   ArrowRight,
-  ArrowLeft
+  ArrowLeft,
+  Building
 } from 'lucide-react';
 
 const UploadMaterial = () => {
   const { refreshMaterials } = useSearch();
+  const faculties = Object.keys(UNIBEN_FACULTIES);
   const [step, setStep] = useState(1);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -27,13 +28,19 @@ const UploadMaterial = () => {
     author: '',
     category: 'Lecture Note',
     code: '',
-    department: 'Computer Science',
+    faculty: faculties[0],
+    department: UNIBEN_FACULTIES[faculties[0]][0],
     description: '',
     file: null
   });
 
   const categories = ['Lecture Note', 'Past Question', 'Textbook', 'Reference', 'Syllabus'];
-  const departments = ['Computer Science', 'Engineering', 'Mathematics', 'Physics', 'Business', 'Law', 'Medicine'];
+
+  const handleFacultyChange = (e) => {
+    const fac = e.target.value;
+    const depts = UNIBEN_FACULTIES[fac] || [];
+    setFormData(prev => ({ ...prev, faculty: fac, department: depts[0] || '' }));
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -244,18 +251,33 @@ const UploadMaterial = () => {
 
             {step === 2 && (
               <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
-                <div className="space-y-3">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                    <Layout size={14} /> Department
-                  </label>
-                  <select
-                    name="department"
-                    value={formData.department}
-                    onChange={handleInputChange}
-                    className="w-full bg-gray-50 border-0 rounded-2xl px-5 py-4 text-sm font-bold text-gray-900 focus:ring-2 focus:ring-primary/20 transition-all appearance-none cursor-pointer"
-                  >
-                    {departments.map(d => <option key={d} value={d}>{d}</option>)}
-                  </select>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                      <Building size={14} /> Target Faculty
+                    </label>
+                    <select
+                      name="faculty"
+                      value={formData.faculty}
+                      onChange={handleFacultyChange}
+                      className="w-full bg-gray-50 border-0 rounded-2xl px-5 py-4 text-sm font-bold text-gray-900 focus:ring-2 focus:ring-primary/20 transition-all appearance-none cursor-pointer"
+                    >
+                      {faculties.map(f => <option key={f} value={f}>{f}</option>)}
+                    </select>
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                      <Layout size={14} /> Department
+                    </label>
+                    <select
+                      name="department"
+                      value={formData.department}
+                      onChange={handleInputChange}
+                      className="w-full bg-gray-50 border-0 rounded-2xl px-5 py-4 text-sm font-bold text-gray-900 focus:ring-2 focus:ring-primary/20 transition-all appearance-none cursor-pointer"
+                    >
+                      {(UNIBEN_FACULTIES[formData.faculty] || []).map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </div>
                 </div>
                 <div className="space-y-3">
                   <label className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
@@ -263,7 +285,7 @@ const UploadMaterial = () => {
                   </label>
                   <textarea
                     name="description"
-                    rows="5"
+                    rows="4"
                     value={formData.description}
                     onChange={handleInputChange}
                     placeholder="Briefly describe what this material covers..."

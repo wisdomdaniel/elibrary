@@ -1,6 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useSearch } from '../../context/SearchContext';
+import { xanoService } from '../../services/xanoService';
+import { UNIBEN_FACULTIES } from '../../services/facultyData';
 import BookCard from '../../components/BookCard';
 import BookDetailModal from '../../components/BookDetailModal';
 import {
@@ -9,18 +11,15 @@ import {
   Building2,
   GraduationCap,
   DownloadCloud,
-  ArrowRight,
   Monitor,
   Settings2,
   Pi,
   Atom,
   Briefcase,
   LayoutGrid,
-  ChevronLeft,
-  Bookmark,
-  Clock as ClockIcon
+  ChevronLeft
 } from 'lucide-react';
-import { MOCK_STATS, MOCK_DEPARTMENTS, MOCK_ANNOUNCEMENTS, MOCK_POPULAR } from '../../services/mockData';
+import { MOCK_STATS, MOCK_POPULAR } from '../../services/mockData';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
@@ -29,6 +28,24 @@ const StudentDashboard = () => {
 
   const [selectedBook, setSelectedBook] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [announcements, setAnnouncements] = useState([]);
+
+  // Fetch real-time announcements
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      const data = await xanoService.getAnnouncements();
+      setAnnouncements(data);
+    };
+    fetchAnnouncements();
+  }, []);
+
+  const studentFaculty = user?.faculty || 'Faculty of Computing';
+  const facultyDepartments = UNIBEN_FACULTIES[studentFaculty] || [];
+
+  // Filter materials strictly for student's faculty
+  const facultyMaterials = useMemo(() => {
+    return results.filter(m => !m.faculty || m.faculty === studentFaculty);
+  }, [results, studentFaculty]);
 
   const handleBookClick = (book) => {
     setSelectedBook(book);
@@ -133,7 +150,7 @@ const StudentDashboard = () => {
             ref={scrollRef}
             className="flex gap-8 overflow-x-auto pb-6 scrollbar-hide snap-x scroll-smooth"
           >
-            {results.map((book) => (
+            {facultyMaterials.map((book) => (
               <div key={book.id} className="snap-start">
                 <BookCard
                   book={book}
@@ -147,19 +164,18 @@ const StudentDashboard = () => {
         {/* Browse by Department */}
         <section>
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-xl font-black text-slate-900">Browse by Department</h2>
-            <button className="text-primary font-black text-xs hover:underline">View all</button>
+            <h2 className="text-xl font-black text-slate-900">Departments in {studentFaculty}</h2>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {MOCK_DEPARTMENTS.map((dept, i) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {facultyDepartments.map((deptName, i) => (
               <div key={i} className="bg-white p-6 rounded-2xl border border-slate-50 flex flex-col items-center text-center gap-4 hover:shadow-lg hover:shadow-slate-100 transition-all duration-300 group cursor-pointer">
                 <div className="h-14 w-14 rounded-xl bg-slate-50 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  {getIcon(dept.icon)}
+                  {getIcon('monitor')}
                 </div>
                 <div>
-                  <h4 className="text-[13px] font-black text-slate-900 mb-1 leading-tight">{dept.name}</h4>
+                  <h4 className="text-[13px] font-black text-slate-900 mb-1 leading-tight">{deptName}</h4>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-                    {typeof dept.materials === 'number' ? `${dept.materials} Materials` : dept.materials}
+                    Active
                   </p>
                 </div>
               </div>
@@ -170,14 +186,13 @@ const StudentDashboard = () => {
 
       {/* Right Sidebar Info Panel */}
       <div className="w-80 space-y-8">
-        {/* Announcements Card */}
+        {/* Realtime Announcements Card */}
         <section className="bg-white rounded-2xl p-8 border border-slate-50 shadow-sm">
           <div className="flex items-center justify-between mb-8">
-            <h3 className="font-black text-slate-900">Announcements</h3>
-            <button className="text-[11px] font-black text-primary">View all</button>
+            <h3 className="font-black text-slate-900">Realtime Announcements</h3>
           </div>
           <div className="space-y-8">
-            {MOCK_ANNOUNCEMENTS.map((ann) => (
+            {announcements.map((ann) => (
               <div key={ann.id} className="flex gap-4 relative">
                 <div className="h-2.5 w-2.5 rounded-full mt-1.5 flex-shrink-0 bg-primary/20 ring-4 ring-white relative z-10 shadow-[0_0_8px_rgba(51,65,85,0.2)]"></div>
                 <div className="space-y-1">
@@ -185,29 +200,6 @@ const StudentDashboard = () => {
                   <p className="text-[11px] font-bold text-slate-400 leading-relaxed">{ann.description}</p>
                   <p className="text-[10px] font-black text-slate-300 uppercase">{ann.time}</p>
                 </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Quick Access */}
-        <section className="bg-white rounded-2xl p-8 border border-slate-50">
-          <h3 className="font-black text-slate-900 mb-8">Quick Access</h3>
-          <div className="space-y-4">
-            {[
-              { name: 'My Courses', icon: GraduationCap },
-              { name: 'Bookmarks', icon: Bookmark },
-              { name: 'Download History', icon: DownloadCloud },
-              { name: 'Reading History', icon: ClockIcon },
-            ].map((item, i) => (
-              <div key={i} className="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group">
-                <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-lg bg-slate-50 text-primary flex items-center justify-center">
-                    <item.icon size={18} />
-                  </div>
-                  <span className="text-xs font-black text-slate-600 group-hover:text-slate-900">{item.name}</span>
-                </div>
-                <ChevronRight size={16} className="text-slate-300 group-hover:text-primary transition-colors" />
               </div>
             ))}
           </div>
