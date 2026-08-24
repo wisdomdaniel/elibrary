@@ -10,19 +10,17 @@ import {
   ArrowUpDown
 } from 'lucide-react';
 import { useSearch } from '../../context/SearchContext';
-import { MOCK_MATERIALS } from '../../services/mockData';
 import UploadModal from '../../components/UploadModal';
 
 const ManageMaterials = () => {
-  const { searchQuery } = useSearch();
-  const [materials, setMaterials] = useState(MOCK_MATERIALS);
+  const { searchQuery, results } = useSearch();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
 
-  const categories = ['All', ...new Set(MOCK_MATERIALS.map(m => m.category))];
+  const categories = ['All', ...new Set(results.map(m => m.category).filter(Boolean))];
 
   const filteredMaterials = useMemo(() => {
-    let filtered = materials;
+    let filtered = results;
 
     if (selectedCategory !== 'All') {
       filtered = filtered.filter(m => m.category === selectedCategory);
@@ -31,18 +29,22 @@ const ManageMaterials = () => {
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(book =>
-        book.title.toLowerCase().includes(query) ||
-        book.author.toLowerCase().includes(query) ||
-        book.code.toLowerCase().includes(query)
+        (book.title && book.title.toLowerCase().includes(query)) ||
+        (book.author && book.author.toLowerCase().includes(query)) ||
+        (book.code && book.code.toLowerCase().includes(query))
       );
     }
 
     return filtered;
-  }, [searchQuery, materials, selectedCategory]);
+  }, [searchQuery, results, selectedCategory]);
 
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this material?')) {
-      setMaterials(prev => prev.filter(m => m.id !== id));
+      // Remove from localStorage if present
+      const uploaded = JSON.parse(localStorage.getItem('uni_materials') || '[]');
+      const updated = uploaded.filter(m => m.id !== id);
+      localStorage.setItem('uni_materials', JSON.stringify(updated));
+      window.dispatchEvent(new Event('storage'));
     }
   };
 
