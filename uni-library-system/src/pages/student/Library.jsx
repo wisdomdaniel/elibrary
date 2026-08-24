@@ -1,9 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import {
   Search,
-  Filter,
-  ArrowUpDown,
-  Grid,
   List,
   ChevronDown,
   LayoutGrid,
@@ -11,12 +8,14 @@ import {
   Calendar,
   Star
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import { useSearch } from '../../context/SearchContext';
-import { MOCK_DEPARTMENTS } from '../../services/mockData';
+import { UNIBEN_FACULTIES } from '../../services/facultyData';
 import BookCard from '../../components/BookCard';
 import BookDetailModal from '../../components/BookDetailModal';
 
 const Library = () => {
+  const { user } = useAuth();
   const { searchQuery, results } = useSearch();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedDept, setSelectedDept] = useState('All');
@@ -25,42 +24,44 @@ const Library = () => {
   const [selectedBook, setSelectedBook] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const studentFaculty = user?.faculty || 'Faculty of Computing';
   const categories = ['All', 'Lecture Note', 'Past Question', 'Textbook', 'Reference'];
-  const departments = ['All', ...MOCK_DEPARTMENTS.filter(d => d.name !== 'More').map(d => d.name)];
+  const departments = ['All', ...(UNIBEN_FACULTIES[studentFaculty] || [])];
 
   const filteredMaterials = useMemo(() => {
-    let result = results;
+    // 1. Filter strictly by student's registered Faculty
+    let result = results.filter(m => !m.faculty || m.faculty === studentFaculty);
 
-    // Search Query
+    // 2. Search Query Filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       result = result.filter(m =>
-        m.title.toLowerCase().includes(query) ||
-        m.author.toLowerCase().includes(query) ||
-        m.code.toLowerCase().includes(query)
+        (m.title && m.title.toLowerCase().includes(query)) ||
+        (m.author && m.author.toLowerCase().includes(query)) ||
+        (m.code && m.code.toLowerCase().includes(query))
       );
     }
 
-    // Category Filter
+    // 3. Category Filter
     if (selectedCategory !== 'All') {
       result = result.filter(m => m.category === selectedCategory);
     }
 
-    // Department Filter
+    // 4. Department Filter (Only departments in this Faculty)
     if (selectedDept !== 'All') {
-      result = result.filter(m => !m.department || m.department === selectedDept || selectedDept === 'Computer Science');
+      result = result.filter(m => m.department === selectedDept);
     }
 
-    // Sorting
+    // 5. Sorting
     result = [...result].sort((a, b) => {
-      if (sortBy === 'newest') return new Date(b.uploadDate) - new Date(a.uploadDate);
-      if (sortBy === 'rating') return b.rating - a.rating;
-      if (sortBy === 'alphabetical') return a.title.localeCompare(b.title);
+      if (sortBy === 'newest') return new Date(b.uploadDate || 0) - new Date(a.uploadDate || 0);
+      if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
+      if (sortBy === 'alphabetical') return (a.title || '').localeCompare(b.title || '');
       return 0;
     });
 
     return result;
-  }, [searchQuery, selectedCategory, selectedDept, sortBy]);
+  }, [searchQuery, selectedCategory, selectedDept, sortBy, results, studentFaculty]);
 
   const handleBookClick = (book) => {
     setSelectedBook(book);
@@ -72,8 +73,8 @@ const Library = () => {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-black text-gray-900">University Library</h1>
-          <p className="text-gray-500 font-bold mt-1">Explore and discover academic materials across all departments.</p>
+          <h1 className="text-3xl font-black text-gray-900">{studentFaculty} Library</h1>
+          <p className="text-gray-500 font-bold mt-1">Explore academic materials curated for your faculty and departments.</p>
         </div>
 
         <div className="flex items-center gap-3">

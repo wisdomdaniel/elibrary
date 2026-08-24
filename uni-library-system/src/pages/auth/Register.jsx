@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { authServices } from '../../services/mockData';
+import { UNIBEN_FACULTIES } from '../../services/facultyData';
 
 const Register = () => {
+  const faculties = Object.keys(UNIBEN_FACULTIES);
   const [formData, setFormData] = useState({
     name: '',
     matNo: '',
     email: '',
-    faculty: 'Sciences',
-    department: 'Computer Science',
+    faculty: faculties[0],
+    department: UNIBEN_FACULTIES[faculties[0]][0],
     level: '300'
   });
   const [error, setError] = useState('');
@@ -17,16 +19,13 @@ const Register = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const faculties = [
-    'Sciences',
-    'Engineering',
-    'Arts & Humanities',
-    'Social Sciences',
-    'Law',
-    'Medicine'
-  ];
-
   const levelOptions = ['100', '200', '300', '400', '500'];
+
+  const handleFacultyChange = (e) => {
+    const selectedFac = e.target.value;
+    const defaultDept = UNIBEN_FACULTIES[selectedFac] ? UNIBEN_FACULTIES[selectedFac][0] : '';
+    setFormData(prev => ({ ...prev, faculty: selectedFac, department: defaultDept }));
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -124,7 +123,7 @@ const Register = () => {
               <select
                 name="faculty"
                 value={formData.faculty}
-                onChange={handleInputChange}
+                onChange={handleFacultyChange}
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 py-3 px-4 text-sm font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all cursor-pointer"
               >
                 {faculties.map(f => (
@@ -137,15 +136,16 @@ const Register = () => {
               <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5 ml-1">
                 Department
               </label>
-              <input
-                type="text"
+              <select
                 name="department"
-                required
                 value={formData.department}
                 onChange={handleInputChange}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 py-3 px-4 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-                placeholder="Computer Science"
-              />
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 py-3 px-4 text-sm font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all cursor-pointer"
+              >
+                {(UNIBEN_FACULTIES[formData.faculty] || []).map(d => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
             </div>
           </div>
 
