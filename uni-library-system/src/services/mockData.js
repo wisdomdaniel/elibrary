@@ -113,15 +113,29 @@ export const MOCK_MATERIALS = [
 
 export const authServices = {
   login: async (email, password) => {
-    // Mock login logic
     return new Promise((resolve, reject) => {
       setTimeout(() => {
+        // Check static accounts
         if (email === "student@uni.com" && password === "password") {
-          resolve({ id: 1, name: "John Doe", email, role: "student" });
-        } else if (email === "admin@uni.com" && password === "password") {
+          resolve({ id: 1, name: "John Doe", email, role: "student", faculty: "Faculty of Computing", department: "Computer Science" });
+          return;
+        }
+        if (email === "admin@uni.com" && password === "password") {
           resolve({ id: 2, name: "Admin User", email, role: "admin" });
+          return;
+        }
+
+        // Check registered users in storage
+        const registered = JSON.parse(localStorage.getItem('uni_registered_users') || '[]');
+        const user = registered.find(u =>
+          (u.email && u.email.toLowerCase() === email.toLowerCase()) &&
+          (u.password === password || u.matNo === password)
+        );
+
+        if (user) {
+          resolve(user);
         } else {
-          reject(new Error("Invalid credentials"));
+          reject(new Error("Invalid credentials. Enter registered Email and password (Mat No)."));
         }
       }, 500);
     });

@@ -38,6 +38,23 @@ const Register = () => {
     setLoading(true);
 
     try {
+      // Verify faculty is registered in UNIBEN_FACULTIES
+      if (!UNIBEN_FACULTIES[formData.faculty]) {
+        // Log security access alert to onwumaezew@gmail.com
+        const securityAlert = {
+          id: Date.now(),
+          timestamp: new Date().toISOString(),
+          recipient: 'onwumaezew@gmail.com',
+          alert: 'UNAUTHORIZED_FACULTY_REGISTRATION_ATTEMPT',
+          details: `User ${formData.name} (${formData.email}) attempted registration with unregistered faculty: "${formData.faculty}". Access Denied.`
+        };
+        const alerts = JSON.parse(localStorage.getItem('uni_security_alerts') || '[]');
+        alerts.unshift(securityAlert);
+        localStorage.setItem('uni_security_alerts', JSON.stringify(alerts));
+
+        throw new Error(`Access Denied: The faculty "${formData.faculty}" is not registered in the UNIBEN system. An access alert has been logged to onwumaezew@gmail.com.`);
+      }
+
       // Password is automatically set to Mat No
       const registrationData = {
         ...formData,

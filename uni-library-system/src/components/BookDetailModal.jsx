@@ -7,10 +7,25 @@ const BookDetailModal = ({ book, isOpen, onClose }) => {
   if (!isOpen || !book) return null;
 
   const handleDownload = () => {
+    let fileName = book.fileName || `${book.code || 'Material'}_${book.title.replace(/\s+/g, '_')}.docx`;
+    let mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+
+    if (fileName.endsWith('.pdf')) {
+      mimeType = 'application/pdf';
+    } else if (fileName.endsWith('.docx')) {
+      mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    } else if (fileName.endsWith('.pptx')) {
+      mimeType = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+    } else if (!fileName.includes('.')) {
+      fileName += '.docx';
+    }
+
+    const content = book.fileContent || `[UNIBEN E-LIBRARY MATERIAL]\nTitle: ${book.title}\nCourse Code: ${book.code}\nAuthor: ${book.author}\nFaculty: ${book.faculty || 'General'}\nDepartment: ${book.department || 'General'}\n\nDescription:\n${book.description || 'Academic study material provided by UNIBEN E-Library System.'}`;
+
+    const blob = new Blob([content], { type: mimeType });
     const element = document.createElement("a");
-    const file = new Blob([`Content of ${book.title}\nCourse: ${book.code}\nAuthor: ${book.author}\n\nDescription:\n${book.description}`], {type: 'text/plain'});
-    element.href = URL.createObjectURL(file);
-    element.download = `${book.code || 'material'}_${book.title.replace(/\s+/g, '_')}.txt`;
+    element.href = URL.createObjectURL(blob);
+    element.download = fileName;
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
@@ -72,7 +87,7 @@ const BookDetailModal = ({ book, isOpen, onClose }) => {
                 <div className="flex items-center justify-between pb-4 border-b border-slate-200">
                   <div className="flex items-center gap-2 font-black text-slate-900 text-sm">
                     <FileText size={18} className="text-primary" />
-                    {book.title} ({book.code})
+                    {book.title} ({book.code}) • <span className="text-xs uppercase text-slate-400 font-bold">{book.fileName?.split('.').pop() || 'DOCX'} Document</span>
                   </div>
                   <button
                     onClick={handleDownload}

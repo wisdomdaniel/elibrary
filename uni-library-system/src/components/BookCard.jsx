@@ -3,11 +3,27 @@ import { Star, Clock, Download } from 'lucide-react';
 const BookCard = ({ book, onClick }) => {
   const handleDownload = (e) => {
     e.stopPropagation();
-    // Simulate material file download
+
+    // Determine file extension and MIME type based on original uploaded file or default to .docx
+    let fileName = book.fileName || `${book.code || 'Material'}_${book.title.replace(/\s+/g, '_')}.docx`;
+    let mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+
+    if (fileName.endsWith('.pdf')) {
+      mimeType = 'application/pdf';
+    } else if (fileName.endsWith('.docx')) {
+      mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    } else if (fileName.endsWith('.pptx')) {
+      mimeType = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+    } else if (!fileName.includes('.')) {
+      fileName += '.docx';
+    }
+
+    const content = book.fileContent || `[UNIBEN E-LIBRARY MATERIAL]\nTitle: ${book.title}\nCourse Code: ${book.code}\nAuthor: ${book.author}\nFaculty: ${book.faculty || 'General'}\nDepartment: ${book.department || 'General'}\n\nDescription:\n${book.description || 'Academic study material provided by UNIBEN E-Library System.'}`;
+
+    const blob = new Blob([content], { type: mimeType });
     const element = document.createElement("a");
-    const file = new Blob([`Content of ${book.title}\nCourse: ${book.code}\nAuthor: ${book.author}`], {type: 'text/plain'});
-    element.href = URL.createObjectURL(file);
-    element.download = `${book.code || 'material'}_${book.title.replace(/\s+/g, '_')}.txt`;
+    element.href = URL.createObjectURL(blob);
+    element.download = fileName;
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
