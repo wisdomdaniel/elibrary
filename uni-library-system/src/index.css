@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #334155; /* Slate 700 - more professional */
-  --color-primary-dark: #1e293b; /* Slate 800 */
-  --color-primary-light: #f1f5f9; /* Slate 100 */
-  --color-accent: #6366f1; /* Indigo 500 for subtle highlights if needed */
+  --color-primary: #2B3649; /* Target navy slate */
+  --color-primary-dark: #1E293B;
+  --color-primary-light: #F1F5F9;
+  --color-accent: #6366F1;
   --color-sidebar: #FFFFFF;
   --color-background: #F8FAFC;
 
-  --radius-button: 0.5rem; /* rounded-lg */
-  --radius-card: 1rem; /* rounded-2xl */
+  --radius-button: 0.75rem; /* rounded-xl */
+  --radius-card: 1.5rem; /* rounded-2xl */
 }
 
 @layer base {
@@ -18,7 +18,7 @@
     line-height: 1.5;
     font-weight: 400;
     color-scheme: light;
-    color: #1e293b;
+    color: #1E293B;
     background-color: #F8FAFC;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -28,9 +28,10 @@
     margin: 0;
     min-width: 320px;
     min-height: 100vh;
+    background-color: #F8FAFC;
   }
 
-  /* Dark mode support */
+  /* Optional Dark Mode Support */
   .dark {
     color-scheme: dark;
     --color-background: #0f172a;
@@ -39,7 +40,8 @@
   }
 
   .dark body {
-    background-color: var(--color-background);
+    background-color: #0f172a;
+    color: #f1f5f9;
   }
 }
 
