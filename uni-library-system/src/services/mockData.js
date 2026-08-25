@@ -1,3 +1,5 @@
+import { getFilePictorialCover } from './formatGraphicService';
+
 // Mock data for initial development
 export const MOCK_STATS = [
   { label: "Total Materials", value: "1,248", icon: "book", color: "blue" },
@@ -56,9 +58,10 @@ export const MOCK_MATERIALS = [
     category: "Lecture Note",
     code: "CSC301",
     rating: 4.8,
-    image: "https://placehold.co/300x400/58348C/white?text=Data+Structures",
+    fileName: "CSC301_Data_Structures.docx",
+    image: getFilePictorialCover("Data Structures & Algorithms", "docx", "LECTURE NOTE"),
     time: "2 hours ago",
-    description: "Learn the latest features of React 19.",
+    description: "Learn fundamental Data Structures and Algorithms with C++ implementations.",
     uploadDate: "2024-03-20"
   },
   {
@@ -68,9 +71,10 @@ export const MOCK_MATERIALS = [
     category: "Lecture Note",
     code: "CSC305",
     rating: 4.5,
-    image: "https://placehold.co/300x400/0A4E8B/white?text=Operating+Systems",
+    fileName: "CSC305_Operating_Systems.pdf",
+    image: getFilePictorialCover("Operating Systems Concepts", "pdf", "LECTURE NOTE"),
     time: "5 hours ago",
-    description: "Master Tailwind and advanced CSS techniques.",
+    description: "Processes, threads, memory management, and file systems.",
     uploadDate: "2024-03-18"
   },
   {
@@ -80,9 +84,10 @@ export const MOCK_MATERIALS = [
     category: "Lecture Note",
     code: "CSC307",
     rating: 4.9,
-    image: "https://placehold.co/300x400/2E6B5E/white?text=Database+Systems",
+    fileName: "CSC307_Database_Systems.pptx",
+    image: getFilePictorialCover("Database Management Systems", "pptx", "LECTURE NOTE"),
     time: "1 day ago",
-    description: "Comprehensive guide to DSA.",
+    description: "Relational algebra, SQL, normalization, and indexing.",
     uploadDate: "2024-03-15"
   },
   {
@@ -92,9 +97,10 @@ export const MOCK_MATERIALS = [
     category: "Past Question",
     code: "MTH201",
     rating: 4.7,
-    image: "https://placehold.co/300x400/A11D33/white?text=Discrete+Math",
+    fileName: "MTH201_Discrete_Math_2023.pdf",
+    image: getFilePictorialCover("Discrete Mathematics", "pdf", "PAST QUESTION"),
     time: "2 days ago",
-    description: "Principles of great user interface design.",
+    description: "Past examination questions with step-by-step solution guides.",
     uploadDate: "2024-03-10"
   },
   {
@@ -104,9 +110,10 @@ export const MOCK_MATERIALS = [
     category: "Lecture Note",
     code: "CSC401",
     rating: 4.6,
-    image: "https://placehold.co/300x400/0F172A/white?text=Artificial+Intelligence",
+    fileName: "CSC401_AI_Introduction.docx",
+    image: getFilePictorialCover("Artificial Intelligence", "docx", "LECTURE NOTE"),
     time: "3 days ago",
-    description: "Introduction to AI.",
+    description: "Introduction to Intelligent Agents, Search Algorithms, and Logic.",
     uploadDate: "2024-03-05"
   }
 ];
@@ -142,7 +149,6 @@ export const authServices = {
         if (user) {
           resolve(user);
         } else {
-          // Fallback attempt to Xano BaaS if configured
           try {
             const xanoUser = await xanoService.loginStudent(cleanEmail, cleanPassword);
             if (xanoUser) {
@@ -150,7 +156,7 @@ export const authServices = {
               return;
             }
           } catch (e) {
-            // Ignore Xano error and proceed to standard reject
+            // Ignore Xano error
           }
           reject(new Error("Invalid credentials. Enter registered Email and password (Mat No) with exact case matching."));
         }
@@ -158,7 +164,6 @@ export const authServices = {
     });
   },
   register: async (userData) => {
-    // Unified Registration: Write to persistent LocalStorage AND Xano BaaS (if available)
     const existingUsers = JSON.parse(localStorage.getItem('uni_registered_users') || '[]');
 
     const cleanUserData = {
@@ -168,10 +173,8 @@ export const authServices = {
       password: (userData.password || userData.matNo || '').trim()
     };
 
-    // Check if user already exists
     const duplicate = existingUsers.find(u => u.email === cleanUserData.email || u.matNo === cleanUserData.matNo);
     if (duplicate) {
-      // Update existing record rather than duplicating
       const index = existingUsers.findIndex(u => u.email === cleanUserData.email || u.matNo === cleanUserData.matNo);
       existingUsers[index] = { ...existingUsers[index], ...cleanUserData };
     } else {
@@ -180,11 +183,8 @@ export const authServices = {
     }
 
     localStorage.setItem('uni_registered_users', JSON.stringify(existingUsers));
-
-    // Dispatch storage event to keep tabs & views synchronized
     window.dispatchEvent(new Event('storage'));
 
-    // Try background sync with Xano BaaS
     try {
       await xanoService.registerStudent(cleanUserData);
     } catch (err) {

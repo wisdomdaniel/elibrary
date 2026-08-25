@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import {
   Bookmark,
-  Search,
   Trash2,
   ExternalLink,
   BookOpen,
-  ArrowRight,
+  ArrowUpRight,
+  Download,
   Inbox
 } from 'lucide-react';
 import { MOCK_MATERIALS } from '../../services/mockData';
 import BookDetailModal from '../../components/BookDetailModal';
 
 const Bookmarks = () => {
-  const [bookmarks, setBookmarks] = useState(MOCK_MATERIALS.slice(0, 3)); // Mock bookmarked items
+  const [bookmarks, setBookmarks] = useState(MOCK_MATERIALS.slice(0, 4));
   const [selectedBook, setSelectedBook] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -28,101 +28,137 @@ const Bookmarks = () => {
     setIsModalOpen(true);
   };
 
+  const handleDownload = (e, book) => {
+    e.stopPropagation();
+    let fileName = book.fileName || `${book.code || 'Material'}_${book.title.replace(/\s+/g, '_')}.docx`;
+    let mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+
+    if (fileName.endsWith('.pdf')) {
+      mimeType = 'application/pdf';
+    } else if (fileName.endsWith('.docx')) {
+      mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    } else if (fileName.endsWith('.pptx')) {
+      mimeType = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+    }
+
+    const content = book.fileContent || `[UNIBEN E-LIBRARY MATERIAL]\nTitle: ${book.title}\nCourse Code: ${book.code}\nAuthor: ${book.author}`;
+    const blob = new Blob([content], { type: mimeType });
+    const element = document.createElement("a");
+    element.href = URL.createObjectURL(blob);
+    element.download = fileName;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
+
   return (
-    <div className="space-y-8 pb-12">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 pb-12 pt-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-gray-900">My Bookmarks</h1>
-          <p className="text-gray-500 font-bold mt-1">Quick access to your saved learning materials.</p>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">My Bookmarks</h1>
+          <p className="text-xs font-bold text-slate-400 mt-0.5">Quick access to your saved learning materials.</p>
         </div>
-        <div className="h-14 w-14 rounded-2xl bg-indigo-50 text-primary flex items-center justify-center border border-indigo-100 shadow-sm">
-          <Bookmark size={28} fill="currentColor" />
+        <div className="h-10 w-10 rounded-xl bg-slate-100 text-[#2B3649] flex items-center justify-center border border-slate-200/60 shadow-xs">
+          <Bookmark size={20} fill="currentColor" />
         </div>
       </div>
 
       {bookmarks.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-          {bookmarks.map((book) => (
-            <div
-              key={book.id}
-              onClick={() => handleBookClick(book)}
-              className="bg-white rounded-[2.5rem] border border-gray-50 overflow-hidden hover:shadow-2xl hover:shadow-indigo-100/50 transition-all duration-500 group cursor-pointer flex flex-col h-full"
-            >
-              {/* Cover Image & Category */}
-              <div className="relative h-64 overflow-hidden bg-gray-100">
-                <img
-                  src={book.image}
-                  alt={book.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute top-6 left-6 flex flex-col gap-2">
-                    <span className="px-4 py-2 rounded-2xl bg-white/90 backdrop-blur-md text-primary text-[10px] font-black uppercase tracking-wider shadow-sm">
-                        {book.category}
-                    </span>
-                    <span className="px-4 py-2 rounded-2xl bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider shadow-lg shadow-indigo-200">
-                        {book.code}
-                    </span>
-                </div>
-
-                {/* Actions Overlay */}
-                <div className="absolute inset-0 bg-indigo-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
-                    <button
-                        onClick={(e) => handleRemoveBookmark(e, book.id)}
-                        className="h-12 w-12 rounded-2xl bg-white text-red-500 flex items-center justify-center shadow-xl hover:scale-110 transition-transform"
-                        title="Remove Bookmark"
-                    >
-                        <Trash2 size={20} />
-                    </button>
-                    <button className="h-12 w-12 rounded-2xl bg-white text-primary flex items-center justify-center shadow-xl hover:scale-110 transition-transform">
-                        <ExternalLink size={20} />
-                    </button>
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="p-8 flex-1 flex flex-col">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="flex text-yellow-400">
-                    {[...Array(5)].map((_, i) => (
-                      <Bookmark key={i} size={12} fill={i < Math.floor(book.rating) ? "currentColor" : "none"} className={i < Math.floor(book.rating) ? "" : "text-gray-200"} />
-                    ))}
-                  </div>
-                  <span className="text-[11px] font-black text-gray-400">{book.rating} Rating</span>
-                </div>
-
-                <h3 className="text-xl font-black text-gray-900 leading-tight group-hover:text-primary transition-colors mb-2 truncate">
-                  {book.title}
-                </h3>
-                <p className="text-sm font-bold text-gray-400 mb-6 truncate">by {book.author}</p>
-
-                <div className="mt-auto pt-6 border-t border-gray-50 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center">
-                            <BookOpen size={14} className="text-gray-400" />
+        <div className="bg-white rounded-3xl border border-slate-100 shadow-xs overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50/50">
+                  <th className="px-6 sm:px-8 py-5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">MATERIAL INFO</th>
+                  <th className="px-6 sm:px-8 py-5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">CATEGORY</th>
+                  <th className="px-6 sm:px-8 py-5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">CODE</th>
+                  <th className="px-6 sm:px-8 py-5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">STATS</th>
+                  <th className="px-6 sm:px-8 py-5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-right">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {bookmarks.map((book) => (
+                  <tr
+                    key={book.id}
+                    onClick={() => handleBookClick(book)}
+                    className="hover:bg-slate-50/50 transition-colors group cursor-pointer"
+                  >
+                    <td className="px-6 sm:px-8 py-4">
+                      <div className="flex items-center gap-4">
+                        <div className="h-12 w-10 rounded-lg overflow-hidden bg-slate-100 border border-slate-100 shadow-2xs flex-shrink-0">
+                          {book.image ? (
+                            <img src={book.image} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" alt="" />
+                          ) : (
+                            <div className="h-full w-full bg-slate-800 flex items-center justify-center text-[8px] font-bold text-white text-center p-1">
+                              {book.code || 'DOC'}
+                            </div>
+                          )}
                         </div>
-                        <span className="text-[11px] font-black text-gray-500 uppercase tracking-tighter">Lecture Note</span>
-                    </div>
-                    <button className="text-primary font-black text-xs flex items-center gap-2 group/btn">
-                        Read Now
-                        <ArrowRight size={14} className="transition-transform group-hover/btn:translate-x-1" />
-                    </button>
-                </div>
-              </div>
-            </div>
-          ))}
+                        <div>
+                          <p className="text-xs font-bold text-slate-900 group-hover:text-[#2B3649] transition-colors leading-snug">{book.title}</p>
+                          <p className="text-[10px] font-semibold text-slate-400 mt-0.5">by {book.author || 'UNIBEN Faculty'}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 sm:px-8 py-4">
+                      <span className="px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-600 text-[9px] font-black uppercase tracking-wider inline-block">
+                        {book.category || 'LECTURE NOTE'}
+                      </span>
+                    </td>
+                    <td className="px-6 sm:px-8 py-4">
+                      <span className="text-xs font-bold text-slate-700">{book.code || 'CSC301'}</span>
+                    </td>
+                    <td className="px-6 sm:px-8 py-4">
+                      <div className="flex items-center gap-3 text-[11px] font-bold">
+                        <span className="flex items-center gap-0.5 text-slate-400">
+                          <ArrowUpRight size={12} className="text-slate-300" />
+                          1.2k
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 sm:px-8 py-4 text-right">
+                      <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          onClick={(e) => handleDownload(e, book)}
+                          title="Download file"
+                          className="p-2 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-all"
+                        >
+                          <Download size={15} />
+                        </button>
+                        <button
+                          onClick={() => handleBookClick(book)}
+                          title="Read Now"
+                          className="p-2 text-slate-400 hover:text-[#2B3649] hover:bg-slate-100 rounded-lg transition-all"
+                        >
+                          <ExternalLink size={15} />
+                        </button>
+                        <button
+                          onClick={(e) => handleRemoveBookmark(e, book.id)}
+                          title="Remove Bookmark"
+                          className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       ) : (
-        <div className="bg-white rounded-[3rem] border border-gray-50 py-32 text-center max-w-4xl mx-auto shadow-sm">
-          <div className="h-28 w-28 bg-indigo-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 animate-pulse">
-            <Inbox size={48} className="text-primary opacity-40" />
+        <div className="bg-white rounded-3xl border border-slate-100 py-20 text-center max-w-2xl mx-auto shadow-xs">
+          <div className="h-16 w-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Inbox size={28} className="text-slate-300" />
           </div>
-          <h2 className="text-2xl font-black text-gray-900 mb-3">No saved materials yet</h2>
-          <p className="text-gray-400 font-bold max-w-sm mx-auto leading-relaxed">
-            Your bookmarks list is empty. Click the bookmark icon on any material to save it for quick access later.
+          <h2 className="text-lg font-black text-slate-900 mb-1">No saved materials yet</h2>
+          <p className="text-slate-400 font-bold text-xs max-w-sm mx-auto leading-relaxed mb-6">
+            Your bookmarks list is empty. Click the bookmark icon on any material to save it.
           </p>
           <button
             onClick={() => window.location.href = '/student/library'}
-            className="mt-10 px-10 py-4 bg-primary text-white rounded-2xl font-black text-sm hover:shadow-2xl hover:shadow-primary/30 transition-all active:scale-95"
+            className="px-6 py-2.5 bg-[#2B3649] text-white rounded-xl font-bold text-xs hover:bg-slate-800 transition-all active:scale-95"
           >
             Explore Library
           </button>
