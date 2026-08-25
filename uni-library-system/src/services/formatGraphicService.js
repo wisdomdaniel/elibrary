@@ -1,49 +1,59 @@
-// Helper function to generate pictorial SVG document cover data URLs
+// Helper function to generate pictorial SVG document cover data URLs matching file format graphics (images.png & images.jpg)
 export const getFilePictorialCover = (title, format = 'docx', category = 'LECTURE NOTE') => {
   const fmt = (format || 'docx').toLowerCase();
-  const safeTitle = (title || 'Study Material').length > 22 ? (title || 'Study Material').substring(0, 20) + '...' : (title || 'Study Material');
 
-  let headerBg = '#1D4ED8'; // Blue for DOCX
-  let fmtText = 'WORD DOC';
-  let badgeBg = '#2563EB';
+  let mainColor = '#1A73E8'; // Google/Word Blue for DOCX
+  let darkBannerColor = '#0D52BF';
+  let fmtLabel = 'DOCX';
+  let isPdf = false;
 
   if (fmt.includes('pdf')) {
-    headerBg = '#DC2626'; // Red for PDF
-    fmtText = 'PDF DOC';
-    badgeBg = '#B91C1C';
+    mainColor = '#E5252A'; // Adobe/PDF Red
+    darkBannerColor = '#C6191E';
+    fmtLabel = 'PDF';
+    isPdf = true;
   } else if (fmt.includes('ppt') || fmt.includes('powerpoint')) {
-    headerBg = '#D97706'; // Orange for PPTX
-    fmtText = 'SLIDE PPT';
-    badgeBg = '#B45309';
+    mainColor = '#D97706'; // PPTX Orange
+    darkBannerColor = '#B45309';
+    fmtLabel = 'PPTX';
   }
 
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400">
-    <rect width="300" height="400" fill="#F8FAFC" rx="16"/>
-    <rect width="300" height="120" fill="${headerBg}" />
-    <circle cx="260" cy="40" r="30" fill="${badgeBg}" opacity="0.4"/>
-    <text x="24" y="45" fill="#FFFFFF" font-family="sans-serif" font-size="12" font-weight="900" letter-spacing="2">${fmtText}</text>
-    <text x="24" y="85" fill="#FFFFFF" font-family="sans-serif" font-size="18" font-weight="800">${safeTitle}</text>
+  let svg = '';
 
-    <!-- Page Graphic Sheet -->
-    <rect x="30" y="140" width="240" height="230" fill="#FFFFFF" rx="12" stroke="#E2E8F0" stroke-width="2"/>
-    <path d="M230 140 L270 180 L230 180 Z" fill="#E2E8F0"/>
-
-    <!-- Mock Text Lines -->
-    <rect x="54" y="170" width="120" height="12" fill="${headerBg}" rx="4"/>
-    <rect x="54" y="196" width="190" height="8" fill="#CBD5E1" rx="4"/>
-    <rect x="54" y="214" width="170" height="8" fill="#CBD5E1" rx="4"/>
-    <rect x="54" y="232" width="180" height="8" fill="#CBD5E1" rx="4"/>
-
-    <!-- Diagram Box Graphic -->
-    <rect x="54" y="254" width="190" height="60" fill="#F1F5F9" rx="8" stroke="#E2E8F0"/>
-    <circle cx="84" cy="284" r="14" fill="${headerBg}" opacity="0.2"/>
-    <rect x="110" y="274" width="80" height="8" fill="#94A3B8" rx="3"/>
-    <rect x="110" y="288" width="50" height="6" fill="#CBD5E1" rx="3"/>
-
-    <!-- Footer Stamp -->
-    <rect x="54" y="332" width="90" height="18" fill="#F1F5F9" rx="6"/>
-    <text x="64" y="345" fill="#64748B" font-family="sans-serif" font-size="9" font-weight="800">${category}</text>
-  </svg>`;
+  if (isPdf) {
+    // PDF Design (images.png style: red outer card, white folded paper inside, red bottom banner with bold "PDF")
+    svg = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+      <rect width="300" height="300" fill="${mainColor}" rx="24"/>
+      <!-- Inner White Folded Sheet -->
+      <path d="M70 45 C70 35 78 27 88 27 L185 27 L230 72 L230 200 L70 200 Z" fill="#FFFFFF"/>
+      <!-- Fold Corner Shadow & Flap -->
+      <path d="M185 27 L185 72 L230 72 Z" fill="#E2E8F0"/>
+      <!-- Document Text Lines -->
+      <rect x="95" y="85" width="75" height="12" fill="#E2E8F0" rx="6"/>
+      <rect x="95" y="110" width="110" height="12" fill="#E2E8F0" rx="6"/>
+      <rect x="95" y="135" width="110" height="12" fill="#E2E8F0" rx="6"/>
+      <rect x="95" y="160" width="95" height="12" fill="#E2E8F0" rx="6"/>
+      <!-- Bottom Red Banner with Bold PDF text -->
+      <text x="150" y="275" fill="#FFFFFF" font-family="system-ui, -apple-system, sans-serif" font-size="52" font-weight="900" text-anchor="middle" letter-spacing="2">PDF</text>
+    </svg>`;
+  } else {
+    // DOCX/PPTX Design (images.jpg style: blue outer card with folded corner top right, white line bars, dark bottom banner with bold "DOCX")
+    svg = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+      <!-- Main Colored Base with rounded corners -->
+      <rect width="300" height="300" fill="${mainColor}" rx="28"/>
+      <!-- Top Right Folded Corner -->
+      <path d="M220 0 L300 80 L220 80 Z" fill="#93C5FD" opacity="0.8"/>
+      <path d="M220 0 L220 80 L300 80 Z" fill="#60A5FA"/>
+      <!-- White Horizontal Document Text Lines -->
+      <rect x="48" y="100" width="160" height="16" fill="#FFFFFF" rx="8"/>
+      <rect x="48" y="132" width="160" height="16" fill="#FFFFFF" rx="8"/>
+      <rect x="48" y="164" width="100" height="16" fill="#FFFFFF" rx="8"/>
+      <!-- Bottom Darker Banner -->
+      <path d="M0 200 L300 200 L300 272 C300 287.467 287.467 300 272 300 L28 300 C12.533 300 0 287.467 0 272 Z" fill="${darkBannerColor}"/>
+      <!-- Bold Label Text -->
+      <text x="150" y="265" fill="#FFFFFF" font-family="system-ui, -apple-system, sans-serif" font-size="44" font-weight="900" text-anchor="middle" letter-spacing="2">${fmtLabel}</text>
+    </svg>`;
+  }
 
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 };
